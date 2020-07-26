@@ -3,12 +3,27 @@
 # perform the operation on the two numbers
 # output the result
 
+require 'yaml'
+MESSAGES = YAML.load_file('calculator_messages.yml')
+
 def prompt(message)
   Kernel.puts("=> #{message}")
 end
 
 def valid_number?(num)
   num.to_i() != 0
+end
+
+def integer?(input)
+  /^-?\d+$/.match(input)
+end
+
+def integer?(input)
+  Integer(input) rescue false
+end
+
+def float?(input)
+  Float(input) rescue false
 end
 
 def operation_to_message(op)
@@ -24,8 +39,7 @@ def operation_to_message(op)
   end
 end
 
-prompt("Welcome to Calculator!")
-prompt("Enter your name: ")
+prompt(MESSAGES['welcome'])
 name = ''
 
 loop do
@@ -72,7 +86,7 @@ loop do # main loop
   MSG
 
   prompt(operator_prompt)
-  
+
   operator = ''
   loop do
     operator = Kernel.gets().chomp()
