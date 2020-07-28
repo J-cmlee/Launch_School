@@ -33,8 +33,6 @@ end
 
 # Win condition check
 def win?(first, second)
-  # Checks if the second player's choice is included in the first player's
-  # value array
   WIN_HASH[first].include?(second)
 end
 
@@ -58,6 +56,67 @@ def update_score(player, computer, score)
   end
 end
 
+# Display score
+def display_score(_player, _computer, score)
+  prompt("Current score is Player: #{score[:player]}; Computer #{score[:computer]}")
+end
+
+# Retrieve Move
+def retrieve_move
+  player = ''
+  loop do
+    prompt("Choose one: [r]ock, [p]aper, [s]cissors, [l]izard, Spoc[k]")
+    player = Kernel.gets().chomp().downcase
+
+    if VALID_CHOICES.include?(player)
+      break
+    else
+      prompt("That is not a valid choice")
+    end
+  end
+  player
+end
+
+# Display Choices
+def display_choices(player, computer)
+  choice_hash = {
+    'r' => 'Rock',
+    'p' => 'Paper',
+    's' => 'Scissors',
+    'l' => 'Lizard',
+    'k' => 'Spock'
+  }
+  Kernel.puts("You chose: #{choice_hash[player]}; Computer chose: #{choice_hash[computer]}")
+end
+
+# Match Over
+def match_over?(score)
+  score.value?(MAX_SCORE)
+end
+
+# Match Winner Display
+def display_match_winner(score)
+  if score[:player] == MAX_SCORE
+    prompt("You have won!")
+  else
+    prompt("The computer has won!")
+  end
+end
+
+# Play Again?
+def retrieve_play_again_answer
+  loop do
+    prompt("Do you want to play again? (y/n): ")
+    answer = gets.chomp.downcase
+    if answer == 'y'
+      return true
+    elsif answer == 'n'
+      return false
+    end
+    prompt("Please select 'y' or 'n'")
+  end
+end
+
 # ==============
 # Main Game Loop
 # ==============
@@ -67,39 +126,25 @@ loop do
   player = '' # Initialize player choice
   score = { player: 0, computer: 0 } # Initialize Scores
 
+  prompt("Rock, Paper, Scissors, Lizard, Spock")
+  prompt("First player to #{MAX_SCORE} wins")
+
   # Loop until one player has reached Max score value
   loop do
-    # Loop until valid user choice
-    loop do
-      prompt("Choose one: [r]ock, [p]aper, [s]cissors, [l]izard, Spoc[k]")
-      player = Kernel.gets().chomp()
+    player = retrieve_move
 
-      if VALID_CHOICES.include?(player)
-        break
-      else
-        prompt("That is not a valid choice")
-      end
-    end
+    computer = VALID_CHOICES.sample
+    system("clear")
 
-    computer = VALID_CHOICES.sample # Computer random choice
-    system("clear") # Clear screen
-
-    Kernel.puts("You chose: #{player}; Computer chose: #{computer}")
+    display_choices(player, computer)
     display_result(player, computer)
     update_score(player, computer, score)
-    prompt("Current score is Player: #{score[:player]}; Computer #{score[:computer]}")
-    break if score.value?(MAX_SCORE)
+    display_score(player, computer, score)
+    break if match_over?(score)
   end
+  display_match_winner(score)
 
-  if score[:player] == MAX_SCORE
-    prompt("You have won!")
-  else
-    prompt("The computer has won!")
-  end
-
-  prompt("Do you want to play again? (y for yes, any other key to exit)")
-  answer = Kernel.gets().chomp()
-  break unless answer.downcase().start_with?('y')
+  break unless retrieve_play_again_answer
   system("clear")
 end
 prompt("Thank you for playing!")
