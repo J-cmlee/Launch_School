@@ -21,7 +21,7 @@ def win?(first, second)
     'l' => ['k', 'p'],
     'k' => ['s', 'r']
   }
-  # Checks if the second player's choice is included in the first player's key value
+  # Checks if the second player's choice is included in the first player's value array
   win_hash[first].include?(second)
 end
 
