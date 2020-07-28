@@ -102,4 +102,4 @@ loop do
   break unless answer.downcase().start_with?('y')
   system("clear")
 end
-prompt("Thank you playing!")
+prompt("Thank you for playing!")
