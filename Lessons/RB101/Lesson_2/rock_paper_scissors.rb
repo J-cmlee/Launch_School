@@ -33,7 +33,8 @@ end
 
 # Win condition check
 def win?(first, second)
-  # Checks if the second player's choice is included in the first player's value array
+  # Checks if the second player's choice is included in the first player's
+  # value array
   WIN_HASH[first].include?(second)
 end
 
@@ -87,7 +88,7 @@ loop do
     display_result(player, computer)
     update_score(player, computer, score)
     prompt("Current score is Player: #{score[:player]}; Computer #{score[:computer]}")
-    break if score.has_value?(MAX_SCORE)
+    break if score.value?(MAX_SCORE)
   end
 
   if score[:player] == MAX_SCORE
