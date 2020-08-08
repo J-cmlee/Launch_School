@@ -2,6 +2,10 @@
 # Constant Declarations
 # =====================
 
+# Display Messages
+require 'yaml'
+MESSAGES = YAML.load_file('rps_messages.yml')
+
 # Choices
 # r = rock
 # p = paper
@@ -39,11 +43,11 @@ end
 # Display result method
 def display_result(player, computer)
   if win?(player, computer)
-    prompt("You won this round!")
+    prompt(MESSAGES["round_win"])
   elsif win?(computer, player)
-    prompt("The computer won this round!")
+    prompt(MESSAGES["round_lose"])
   else
-    prompt("It's a tie")
+    prompt(MESSAGES["round_tie"])
   end
 end
 
@@ -65,7 +69,7 @@ end
 def retrieve_move
   player = ''
   loop do
-    prompt("Choose one: [r]ock, [p]aper, [s]cissors, [l]izard, Spoc[k]")
+    prompt(MESSAGES["move_prompt"])
     player = Kernel.gets().chomp().downcase
 
     if VALID_CHOICES.include?(player)

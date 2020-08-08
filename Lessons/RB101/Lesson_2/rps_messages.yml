@@ -1,0 +1,4 @@
+round_win: "You won this round!"
+round_lose: "The computer won this round!"
+round_tie: "It's a tie"
+move_prompt: "Choose one: [r]ock, [p]aper, [s]cissors, [l]izard, Spoc[k]"
