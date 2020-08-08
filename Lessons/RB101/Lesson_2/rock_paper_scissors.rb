@@ -75,7 +75,7 @@ def retrieve_move
     if VALID_CHOICES.include?(player)
       break
     else
-      prompt("That is not a valid choice")
+      prompt(MESSAGES["not_valid"])
     end
   end
   player
@@ -110,7 +110,7 @@ end
 # Play Again?
 def retrieve_play_again_answer
   loop do
-    prompt("Do you want to play again? (y/n): ")
+    prompt(MESSAGES["play_again"])
     answer = gets.chomp.downcase
     if answer == 'y'
       return true
