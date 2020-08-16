@@ -1,11 +1,35 @@
-arr1 = [1, [2, 3], 4]
+order_data = [
+  {customer_id: 12, customer_name: 'Emma Lopez', order_id: 351, order_date: '12/04/16', order_fulfilled: true, order_value: 135.99},
+  {customer_id: 12, customer_name: 'Emma Lopez', order_id: 383, order_date: '12/04/16', order_fulfilled: true, order_value: 289.49},
+  {customer_id: 12, customer_name: 'Emma Lopez', order_id: 392, order_date: '01/10/17', order_fulfilled: false, order_value: 58.00},
+  {customer_id: 32, customer_name: 'Michael Richards', order_id: 241, order_date: '11/10/16', order_fulfilled: true, order_value: 120.00},
+  {customer_id: 32, customer_name: 'Michael Richards', order_id: 395, order_date: '01/10/17', order_fulfilled: false, order_value: 85.65},
+  # rest of data...
+]
 
-arr2 = [{a: 1}, {b: 2, c: [7, 6, 5], d: 4}, 3]
+customer_orders = {}
 
-hsh1 = {first: [1, 2, [3]]}
+order_data.each do |row|
+  if customer_orders.has_key?(row[:customer_id])
+    customer_orders[row[:customer_id]][:orders] << {
+      order_fulfilled: row[:order_fulfilled],
+      order_value: row[:order_value]
+    }
+  else
+    customer_orders[row[:customer_id]] = {
+      customer_id: row[:customer_id],
+      customer_name: row[:customer_name],
+      orders: [
+        {
+          order_fulfilled: row[:order_fulfilled],
+          order_value: row[:order_value]
+        }
+      ]
+    }
+  end
+end
 
-hsh2 = {['a'] => {a: ['1', :two, 3], b: 4}, 'b' => 5}
+customer_orders = customer_orders.values
 
-arr1[1][1] = 4
-arr2[2] = 4
-hsh1[:first][2][0] = 4
+
+
