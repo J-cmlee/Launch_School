@@ -163,6 +163,15 @@ def detect_winner(brd)
   nil
 end
 
+def update_score(brd, score)
+  case detect_winner(brd)
+  when "Player"
+    score[:player] += 1
+  when "Computer"
+    score[:computer] += 1
+  end
+end
+
 def play_again?
   loop do
     prompt "Play again? (y or n)"
@@ -175,6 +184,21 @@ def play_again?
     end
   end
 end
+
+# Introduction
+system("clear")
+prompt "======================"
+prompt "Welcome to Tic-Tac-Toe"
+prompt "======================"
+prompt ""
+prompt "Board is set as follows:"
+prompt "1|2|3"
+prompt "4|5|6"
+prompt "7|8|9"
+prompt ""
+prompt "Turns will alternate to the loser of the previous round"
+prompt "Press any key to continue"
+gets.chomp
 
 # Main game loop
 loop do
@@ -194,12 +218,7 @@ loop do
     end
 
     if someone_won?(board)
-      case detect_winner(board)
-      when "Player"
-        score[:player] += 1
-      when "Computer"
-        score[:computer] += 1
-      end
+      update_score(board, score)
       display_board(board, score)
       prompt "#{detect_winner(board)} won!"
     else
