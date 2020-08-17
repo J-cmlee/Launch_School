@@ -1,5 +1,9 @@
 require 'pry'
 
+# =========
+# Constants
+# =========
+TURN = "choose"
 INITIAL_MARKER = " "
 PLAYER_MARKER = "X"
 COMPUTER_MARKER = "O"
@@ -10,11 +14,12 @@ WINNING_LINES = [
   [1, 5, 9], [3, 5, 7] # diagonals
 ]
 
+# Methods
 def prompt(msg)
   puts "=> #{msg}"
 end
 
-# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
 def display_board(brd, points)
   system("clear")
   puts "First to #{WIN_SCORE} wins!"
@@ -34,7 +39,7 @@ def display_board(brd, points)
   puts "     |     |"
   puts ""
 end
-# rubocop:enable Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
 def initialize_board
   new_board = {}
@@ -70,12 +75,11 @@ end
 
 def find_at_risk_square(line, board, marker)
   if board.values_at(*line).count(marker) == 2
-    # On the line combination that there is a win
-    # It will look for the remaining key that contains a blank
     board.select { |k, v| line.include?(k) && v == INITIAL_MARKER }.keys.first
   end
 end
 
+# rubocop:disable Metrics/MethodLength
 def computer_places_piece!(brd)
   square = nil
 
@@ -104,6 +108,7 @@ def computer_places_piece!(brd)
 
   brd[square] = COMPUTER_MARKER
 end
+# rubocop:enable Metrics/MethodLength
 
 def board_full?(brd)
   empty_squares(brd).empty?
@@ -122,6 +127,19 @@ def detect_winner(brd)
     end
   end
   nil
+end
+
+def play_again?
+  loop do
+    prompt "Play again? (y or n)"
+    answer = gets.chomp.downcase
+    case answer
+    when 'y' then return true
+    when 'n' then return false
+    else
+      prompt "Please enter a valid response (y/n)"
+    end
+  end
 end
 
 # Main game loop
@@ -162,9 +180,7 @@ loop do
       break
     end
   end
-  prompt "Play again? (y or n)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+  break if play_again? == false
 end
 
 prompt "Thanks for playing Tic Tac Toe"
