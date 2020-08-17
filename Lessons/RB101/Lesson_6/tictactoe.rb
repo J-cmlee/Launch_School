@@ -14,7 +14,9 @@ WINNING_LINES = [
   [1, 5, 9], [3, 5, 7] # diagonals
 ]
 
+# =======
 # Methods
+# =======
 def prompt(msg)
   puts "=> #{msg}"
 end
@@ -23,8 +25,8 @@ end
 def display_board(brd, points)
   system("clear")
   puts "First to #{WIN_SCORE} wins!"
-  puts "You're a #{PLAYER_MARKER}. Score: #{points[:player]}" \
-       "  Computer is #{COMPUTER_MARKER}. Score: #{points[:computer]}"
+  puts "Player: #{PLAYER_MARKER}. Score: #{points[:player]}" \
+       "  Computer: #{COMPUTER_MARKER}. Score: #{points[:computer]}"
   puts ""
   puts "     |     |"
   puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}"
@@ -66,11 +68,11 @@ def player_places_piece!(brd)
   square = ' '
   loop do
     prompt "Choose a square (#{joinor(empty_squares(brd))}):"
-    square = gets.chomp.to_i
-    break if empty_squares(brd).include?(square)
+    square = gets.chomp
+    break if empty_squares(brd).map(&:to_s).include?(square)
     prompt "Sorry, that is not a valid choice"
   end
-  brd[square] = PLAYER_MARKER
+  brd[square.to_i] = PLAYER_MARKER
 end
 
 def find_at_risk_square(line, board, marker)
@@ -110,6 +112,38 @@ def computer_places_piece!(brd)
 end
 # rubocop:enable Metrics/MethodLength
 
+def place_piece!(brd, player)
+  case player
+  when "player" then player_places_piece!(brd)
+  when "computer" then computer_places_piece!(brd)
+  end
+end
+
+def turn_order
+  if TURN == "choose"
+    loop do
+      prompt "Please select which player goes first:"
+      prompt "[C]omputer or [P]layer (C/P)"
+      answer = gets.chomp.downcase
+      case answer
+      when "c" then return "computer"
+      when "p" then return "player"
+      else
+        prompt "Invalid selection"
+      end
+    end
+  else
+    TURN
+  end
+end
+
+def alternate_player(current_player)
+  case current_player
+  when "computer" then "player"
+  when "player" then "computer"
+  end
+end
+
 def board_full?(brd)
   empty_squares(brd).empty?
 end
@@ -145,16 +179,17 @@ end
 # Main game loop
 loop do
   score = { player: 0, computer: 0 }
+  # initialize move order
+  current_player = turn_order
+
   # score loop
   loop do
     board = initialize_board
+    # round loop
     loop do
       display_board(board, score)
-
-      player_places_piece!(board)
-      break if someone_won?(board) || board_full?(board)
-
-      computer_places_piece!(board)
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
       break if someone_won?(board) || board_full?(board)
     end
 
