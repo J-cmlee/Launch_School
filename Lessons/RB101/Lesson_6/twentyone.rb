@@ -2,7 +2,7 @@
 # Constants
 # =========
 
-SYMBOLS = {
+SUITS = {
   "H" => "Hearts",
   "D" => "Diamonds",
   "S" => "Spades",
@@ -38,17 +38,11 @@ end
 # This will return a new shuffled deck
 def generate_deck
   # Symbol Array
-  symbols = ['H', 'D', 'S', 'C']
+  suits = ['H', 'D', 'S', 'C']
   # Value Array
-  values = [*1..10].map(&:to_s) + ['J', 'Q', 'K', 'A']
+  values = [*2..10].map(&:to_s) + ['J', 'Q', 'K', 'A']
   # Deck
-  deck = []
-  symbols.each do |symbol|
-    values.each do |value|
-      deck << [symbol, value]
-    end
-  end
-  deck.shuffle # return shuffled deck
+  suits.product(values).shuffle # return shuffled deck
 end
 
 def deal!(deck)
@@ -56,12 +50,14 @@ def deal!(deck)
 end
 
 def initiate_hands!(player, dealer, deck)
-  2.times { player << deal!(deck) }
-  2.times { dealer << deal!(deck) }
+  2.times do
+    player << deal!(deck)
+    dealer << deal!(deck)
+  end
 end
 
 def card_name(card)
-  symbol_name = SYMBOLS[card[0]]
+  symbol_name = SUITS[card[0]]
   value_name = if card[1].to_i == 0
                  VALUES[card[1]]
                else
@@ -91,9 +87,9 @@ def total_value(cards)
   sum
 end
 
-def display_summary(player, dealer)
+def display_player_summary(player, dealer)
   system("clear")
-  prompt "Dealer Card: #{card_name(dealer[0])}"
+  prompt "Dealer Card: #{card_name(dealer[0])} and ?"
   prompt ""
   prompt "Your cards:"
   player.each { |card| prompt((card_name(card))) }
@@ -108,14 +104,13 @@ end
 
 def player_turn!(player, dealer, deck)
   loop do
-    display_summary(player, dealer)
+    display_player_summary(player, dealer)
     prompt "[H]it or [S]tay? (H/S)"
     answer = gets.chomp.downcase
     case answer
     when 'h'
       player << deal!(deck)
     when 's'
-      prompt "You chose to stay"
       break
     else
       prompt "Wrong choice"
@@ -142,10 +137,52 @@ def dealer_turn!(player, dealer, deck)
   prompt "Dealer total: #{total_value(dealer)}"
 end
 
+def display_winner(player, dealer)
+  if total_value(player) > MAX_LIMIT
+    prompt "You have lost"
+  elsif (total_value(dealer) > MAX_LIMIT) ||
+        (total_value(player) > total_value(dealer))
+    prompt "You have won"
+  elsif total_value(dealer) > total_value(player)
+    prompt "You have lost"
+  else
+    prompt "It is a tie"
+  end
+end
+
+def play_again?
+  loop do
+    prompt "Do you want to play again? (Y/N)"
+    answer = gets.chomp.downcase
+    case answer
+    when 'y' then return true
+    when 'n' then return false
+    else
+      prompt "Invalid choice"
+    end
+  end
+end
+
+def display_introduction
+  system("clear")
+  prompt "=========="
+  prompt "TWENTY-ONE"
+  prompt "=========="
+  prompt ""
+  prompt "Player with the largest score under #{MAX_LIMIT} wins!"
+  prompt "Press Enter to continue"
+  gets.chomp
+end
+
+def display_farewell
+  prompt "Thank you playing!"
+end
+
 # ==============
 # Main Game Loop
 # ==============
 
+display_introduction
 loop do
   deck = generate_deck
   player = []
@@ -153,12 +190,13 @@ loop do
   initiate_hands!(player, dealer, deck)
   player_turn!(player, dealer, deck)
   if busted?(player)
-    display_summary(player, dealer)
+    display_player_summary(player, dealer)
     prompt "You have busted!"
   else
     dealer_turn!(player, dealer, deck)
   end
+  display_winner(player, dealer)
 
-  # test
-  break
+  break unless play_again?
 end
+display_farewell
