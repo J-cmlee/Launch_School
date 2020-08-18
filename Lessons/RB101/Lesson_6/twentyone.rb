@@ -195,9 +195,7 @@ end
 
 def display_introduction
   system("clear")
-  prompt "=========="
-  prompt "TWENTY-ONE"
-  prompt "=========="
+  prompt "GAME OF #{MAX_LIMIT}"
   prompt ""
   prompt "Player first to #{MAX_SCORE} wins!"
   prompt "Press Enter to continue"
