@@ -16,6 +16,8 @@ VALUES = {
   "A" => "Ace"
 }
 
+MAX_LIMIT = 21
+
 # =======
 # Methods
 # =======
@@ -52,9 +54,13 @@ def deal!(deck)
   deck.pop
 end
 
+def initiate_hands!(player, dealer, deck)
+  2.times { player << deal!(deck) }
+  2.times { dealer << deal!(deck) }
+end
+
 def card_name(card)
   symbol_name = SYMBOLS[card[0]]
-  value_name = ''
   value_name = if card[1].to_i == 0
                  VALUES[card[1]]
                else
@@ -79,9 +85,52 @@ def total_value(cards)
 
   # correction for Aces
   values.select { |value| value == 'A' }.count.times do
-    sum -= 10 if sum > 21
+    sum -= 10 if sum > MAX_LIMIT
   end
   sum
 end
 
-# Testing Area
+def display_summary(player, dealer)
+  system("clear")
+  prompt "Dealer Card: #{card_name(dealer[0])}"
+  prompt ""
+  prompt "Your cards:"
+  player.each { |card| prompt((card_name(card))) }
+  prompt "Total Value: #{total_value(player)}"
+  prompt ""
+end
+
+def busted?(hand)
+  return true if total_value(hand) > MAX_LIMIT
+  false
+end
+
+def player_turn!(player, dealer, deck)
+  loop do
+    display_summary(player, dealer)
+    prompt "[H]it or [S]tay? (H/S)"
+    answer = gets.chomp.downcase
+    case answer
+    when 'h'
+      player << deal!(deck)
+    when 's'
+      prompt "You chose to stay"
+      break
+    end
+    break if busted?(player)
+  end
+end
+
+# ==============
+# Main Game Loop
+# ==============
+
+loop do
+  deck = generate_deck
+  player = []
+  dealer = []
+  initiate_hands!(player, dealer, deck)
+  player_turn!(player, dealer, deck)
+  # test
+  break
+end
