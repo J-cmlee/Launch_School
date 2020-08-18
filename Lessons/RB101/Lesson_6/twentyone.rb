@@ -18,6 +18,7 @@ VALUES = {
 
 MAX_LIMIT = 21
 DEALER_LIMIT = 17
+MAX_SCORE = 5
 
 # =======
 # Methods
@@ -137,17 +138,22 @@ def dealer_turn!(player, dealer, deck)
   prompt "Dealer total: #{total_value(dealer)}"
 end
 
-def display_winner(player, dealer)
+def calculate_winner!(player, dealer, score)
   if total_value(player) > MAX_LIMIT
     prompt "You have lost"
+    score[:dealer] += 1
   elsif (total_value(dealer) > MAX_LIMIT) ||
         (total_value(player) > total_value(dealer))
     prompt "You have won"
+    score[:player] += 1
   elsif total_value(dealer) > total_value(player)
     prompt "You have lost"
+    score[:dealer] += 1
   else
     prompt "It is a tie"
   end
+  prompt "Press Enter to continue"
+  gets.chomp
 end
 
 def play_again?
@@ -163,13 +169,35 @@ def play_again?
   end
 end
 
+def winner?(score)
+  if score[:player] == MAX_SCORE
+    return "Player"
+  elsif score[:dealer] == MAX_SCORE
+    return "Dealer"
+  end
+  nil
+end
+
+def display_score(score)
+  system("clear")
+  prompt "==========="
+  prompt "Score Board"
+  prompt "==========="
+  prompt "Player: #{score[:player]} Dealer: #{score[:dealer]}"
+  if winner?(score)
+    prompt "The winner is the #{winner?(score)}"
+  end
+  prompt "Press Enter to continue"
+  gets.chomp
+end
+
 def display_introduction
   system("clear")
   prompt "=========="
   prompt "TWENTY-ONE"
   prompt "=========="
   prompt ""
-  prompt "Player with the largest score under #{MAX_LIMIT} wins!"
+  prompt "Player first to #{MAX_SCORE} wins!"
   prompt "Press Enter to continue"
   gets.chomp
 end
@@ -184,19 +212,24 @@ end
 
 display_introduction
 loop do
-  deck = generate_deck
-  player = []
-  dealer = []
-  initiate_hands!(player, dealer, deck)
-  player_turn!(player, dealer, deck)
-  if busted?(player)
-    display_player_summary(player, dealer)
-    prompt "You have busted!"
-  else
-    dealer_turn!(player, dealer, deck)
+  score = { player: 0, dealer: 0 }
+  # score loop
+  loop do
+    deck = generate_deck
+    player = []
+    dealer = []
+    initiate_hands!(player, dealer, deck)
+    player_turn!(player, dealer, deck)
+    if busted?(player)
+      display_player_summary(player, dealer)
+      prompt "You have busted!"
+    else
+      dealer_turn!(player, dealer, deck)
+    end
+    calculate_winner!(player, dealer, score)
+    display_score(score)
+    break if winner?(score)
   end
-  display_winner(player, dealer)
-
   break unless play_again?
 end
 display_farewell
