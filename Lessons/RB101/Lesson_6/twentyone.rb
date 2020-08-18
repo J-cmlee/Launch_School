@@ -121,6 +121,7 @@ def player_turn!(player, dealer, deck)
   end
 end
 
+# rubocop:disable Metrics/AbcSize
 def dealer_turn!(player, dealer, deck)
   system("clear")
   prompt "Your total: #{total_value(player)}"
@@ -155,6 +156,7 @@ def calculate_winner!(player, dealer, score)
   prompt "Press Enter to continue"
   gets.chomp
 end
+# rubocop:enable Metrics/AbcSize
 
 def play_again?
   loop do
