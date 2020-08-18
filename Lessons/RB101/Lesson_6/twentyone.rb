@@ -17,6 +17,7 @@ VALUES = {
 }
 
 MAX_LIMIT = 21
+DEALER_LIMIT = 17
 
 # =======
 # Methods
@@ -116,9 +117,29 @@ def player_turn!(player, dealer, deck)
     when 's'
       prompt "You chose to stay"
       break
+    else
+      prompt "Wrong choice"
+      sleep 1
     end
     break if busted?(player)
   end
+end
+
+def dealer_turn!(player, dealer, deck)
+  system("clear")
+  prompt "Your total: #{total_value(player)}"
+  prompt ""
+  prompt "Dealer Cards:"
+  dealer.each do |card|
+    sleep 1
+    prompt(card_name(card))
+  end
+  while total_value(dealer) < DEALER_LIMIT
+    sleep 1
+    dealer << deal!(deck)
+    prompt card_name(dealer.last)
+  end
+  prompt "Dealer total: #{total_value(dealer)}"
 end
 
 # ==============
@@ -131,6 +152,13 @@ loop do
   dealer = []
   initiate_hands!(player, dealer, deck)
   player_turn!(player, dealer, deck)
+  if busted?(player)
+    display_summary(player, dealer)
+    prompt "You have busted!"
+  else
+    dealer_turn!(player, dealer, deck)
+  end
+
   # test
   break
 end
