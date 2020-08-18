@@ -1,5 +1,3 @@
-require 'pry'
-
 # =========
 # Constants
 # =========
@@ -81,22 +79,31 @@ def find_at_risk_square(line, board, marker)
   end
 end
 
-# rubocop:disable Metrics/MethodLength
-def computer_places_piece!(brd)
-  square = nil
-
-  # offense first
+def computer_offensive_move!(brd, square)
   WINNING_LINES.each do |line|
     square = find_at_risk_square(line, brd, COMPUTER_MARKER)
     break if square
   end
+  square
+end
+
+def computer_defensive_move!(brd, square)
+  WINNING_LINES.each do |line|
+    square = find_at_risk_square(line, brd, PLAYER_MARKER)
+    break if square
+  end
+  square
+end
+
+def computer_places_piece!(brd)
+  square = nil
+
+  # offense first
+  square = computer_offensive_move!(brd, square)
 
   # defense
   if !square
-    WINNING_LINES.each do |line|
-      square = find_at_risk_square(line, brd, PLAYER_MARKER)
-      break if square
-    end
+    square = computer_defensive_move!(brd, square)
   end
 
   # just pick 5 or a square
@@ -110,7 +117,6 @@ def computer_places_piece!(brd)
 
   brd[square] = COMPUTER_MARKER
 end
-# rubocop:enable Metrics/MethodLength
 
 def place_piece!(brd, player)
   case player
@@ -185,22 +191,37 @@ def play_again?
   end
 end
 
-# Introduction
-system("clear")
-prompt "======================"
-prompt "Welcome to Tic-Tac-Toe"
-prompt "======================"
-prompt ""
-prompt "Board is set as follows:"
-prompt "1|2|3"
-prompt "4|5|6"
-prompt "7|8|9"
-prompt ""
-prompt "Turns will alternate to the loser of the previous round"
-prompt "Press any key to continue"
-gets.chomp
+def game_won?(score)
+  if score.value?(WIN_SCORE)
+    prompt "Final Score: Player: #{score[:player]}" \
+           " Computer: #{score[:computer]}"
+    true
+  end
+end
+
+def display_introduction
+  # Introduction
+  system("clear")
+  prompt "======================"
+  prompt "Welcome to Tic-Tac-Toe"
+  prompt "======================"
+  prompt ""
+  prompt "Board is set as follows:"
+  prompt "1|2|3"
+  prompt "4|5|6"
+  prompt "7|8|9"
+  prompt ""
+  prompt "Turns will alternate to the loser of the previous round"
+  prompt "Press Enter to continue"
+  gets.chomp
+end
+
+def display_goodbye
+  prompt "Thanks for playing Tic Tac Toe"
+end
 
 # Main game loop
+display_introduction
 loop do
   score = { player: 0, computer: 0 }
   # initialize move order
@@ -225,16 +246,12 @@ loop do
       display_board(board, score)
       prompt "It's a tie"
     end
-    prompt "Press any key to continue"
+    prompt "Press Enter to continue"
     gets.chomp
 
-    if score.value?(WIN_SCORE)
-      prompt "Final Score: Player: #{score[:player]}" \
-             " Computer: #{score[:computer]}"
-      break
-    end
+    break if game_won?(score)
   end
-  break if play_again? == false
+  break unless play_again?
 end
 
-prompt "Thanks for playing Tic Tac Toe"
+display_goodbye
