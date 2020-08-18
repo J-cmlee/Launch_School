@@ -121,10 +121,9 @@ def player_turn!(player, dealer, deck)
   end
 end
 
-# rubocop:disable Metrics/AbcSize
-def dealer_turn!(player, dealer, deck)
+def dealer_turn!(player_total, dealer, deck)
   system("clear")
-  prompt "Your total: #{total_value(player)}"
+  prompt "Your total: #{player_total}"
   prompt ""
   prompt "Dealer Cards:"
   dealer.each do |card|
@@ -139,15 +138,15 @@ def dealer_turn!(player, dealer, deck)
   prompt "Dealer total: #{total_value(dealer)}"
 end
 
-def calculate_winner!(player, dealer, score)
-  if total_value(player) > MAX_LIMIT
+def calculate_winner!(player_total, dealer_total, score)
+  if player_total > MAX_LIMIT
     prompt "You have lost"
     score[:dealer] += 1
-  elsif (total_value(dealer) > MAX_LIMIT) ||
-        (total_value(player) > total_value(dealer))
+  elsif (dealer_total > MAX_LIMIT) ||
+        (player_total > dealer_total)
     prompt "You have won"
     score[:player] += 1
-  elsif total_value(dealer) > total_value(player)
+  elsif dealer_total > player_total
     prompt "You have lost"
     score[:dealer] += 1
   else
@@ -156,7 +155,6 @@ def calculate_winner!(player, dealer, score)
   prompt "Press Enter to continue"
   gets.chomp
 end
-# rubocop:enable Metrics/AbcSize
 
 def play_again?
   loop do
@@ -220,13 +218,15 @@ loop do
     dealer = []
     initiate_hands!(player, dealer, deck)
     player_turn!(player, dealer, deck)
+    player_total = total_value(player)
     if busted?(player)
       display_player_summary(player, dealer)
       prompt "You have busted!"
     else
-      dealer_turn!(player, dealer, deck)
+      dealer_turn!(player_total, dealer, deck)
     end
-    calculate_winner!(player, dealer, score)
+    dealer_total = total_value(dealer)
+    calculate_winner!(player_total, dealer_total, score)
     display_score(score)
     break if winner?(score)
   end
