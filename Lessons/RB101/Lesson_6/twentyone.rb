@@ -19,6 +19,8 @@ VALUES = {
 MAX_LIMIT = 21
 DEALER_LIMIT = 17
 MAX_SCORE = 5
+DELAY_VALUE = 1
+STARTING_SIZE = 2
 
 # =======
 # Methods
@@ -26,6 +28,10 @@ MAX_SCORE = 5
 
 def prompt(msg)
   puts "=> #{msg}"
+end
+
+def clear_screen
+  system("clear")
 end
 
 # Deck Structure
@@ -51,7 +57,7 @@ def deal!(deck)
 end
 
 def initiate_hands!(player, dealer, deck)
-  2.times do
+  STARTING_SIZE.times do
     player << deal!(deck)
     dealer << deal!(deck)
   end
@@ -65,6 +71,12 @@ def card_name(card)
                  card[1]
                end
   value_name + " of " + symbol_name
+end
+
+def calculate_aces(values, sum)
+  values.select { |value| value == 'A' }.count.times do
+    sum -= 10 if sum > MAX_LIMIT
+  end
 end
 
 def total_value(cards)
@@ -82,14 +94,12 @@ def total_value(cards)
   end
 
   # correction for Aces
-  values.select { |value| value == 'A' }.count.times do
-    sum -= 10 if sum > MAX_LIMIT
-  end
+  calculate_aces(values, sum)
   sum
 end
 
 def display_player_summary(player, dealer)
-  system("clear")
+  clear_screen
   prompt "Dealer Card: #{card_name(dealer[0])} and ?"
   prompt ""
   prompt "Your cards:"
@@ -99,8 +109,7 @@ def display_player_summary(player, dealer)
 end
 
 def busted?(hand)
-  return true if total_value(hand) > MAX_LIMIT
-  false
+  total_value(hand) > MAX_LIMIT
 end
 
 def player_turn!(player, dealer, deck)
@@ -115,23 +124,28 @@ def player_turn!(player, dealer, deck)
       break
     else
       prompt "Wrong choice"
-      sleep 1
+      sleep DELAY_VALUE
     end
     break if busted?(player)
   end
 end
 
-def dealer_turn!(player_total, dealer, deck)
-  system("clear")
+def display_dealer_turn(player_total, dealer)
+  clear_screen
   prompt "Your total: #{player_total}"
   prompt ""
   prompt "Dealer Cards:"
   dealer.each do |card|
-    sleep 1
+    sleep DELAY_VALUE
     prompt(card_name(card))
   end
+end
+
+def dealer_turn!(player_total, dealer, deck)
+  display_dealer_turn(player_total, dealer)
+
   while total_value(dealer) < DEALER_LIMIT
-    sleep 1
+    sleep DELAY_VALUE
     dealer << deal!(deck)
     prompt card_name(dealer.last)
   end
@@ -140,15 +154,23 @@ end
 
 def calculate_winner!(player_total, dealer_total, score)
   if player_total > MAX_LIMIT
-    prompt "You have lost"
     score[:dealer] += 1
+    return :dealer
   elsif (dealer_total > MAX_LIMIT) ||
         (player_total > dealer_total)
-    prompt "You have won"
     score[:player] += 1
+    return :player
   elsif dealer_total > player_total
-    prompt "You have lost"
     score[:dealer] += 1
+    return :dealer
+  end
+  nil
+end
+
+def winner_message(winner)
+  case winner
+  when :dealer then prompt "You have lost"
+  when :player then prompt "You have won"
   else
     prompt "It is a tie"
   end
@@ -171,15 +193,14 @@ end
 
 def winner?(score)
   if score[:player] == MAX_SCORE
-    return "Player"
+    "Player"
   elsif score[:dealer] == MAX_SCORE
-    return "Dealer"
+    "Dealer"
   end
-  nil
 end
 
 def display_score(score)
-  system("clear")
+  clear_screen
   prompt "==========="
   prompt "Score Board"
   prompt "==========="
@@ -191,8 +212,13 @@ def display_score(score)
   gets.chomp
 end
 
+def display_player_busted(player, dealer)
+  display_player_summary(player, dealer)
+  prompt "You have busted!"
+end
+
 def display_introduction
-  system("clear")
+  clear_screen
   prompt "GAME OF #{MAX_LIMIT}"
   prompt ""
   prompt "Player first to #{MAX_SCORE} wins!"
@@ -220,13 +246,12 @@ loop do
     player_turn!(player, dealer, deck)
     player_total = total_value(player)
     if busted?(player)
-      display_player_summary(player, dealer)
-      prompt "You have busted!"
+      display_player_busted(player, dealer)
     else
       dealer_turn!(player_total, dealer, deck)
     end
     dealer_total = total_value(dealer)
-    calculate_winner!(player_total, dealer_total, score)
+    winner_message(calculate_winner!(player_total, dealer_total, score))
     display_score(score)
     break if winner?(score)
   end
