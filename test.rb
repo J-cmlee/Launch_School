@@ -1,23 +1,41 @@
-def rotate_array(array)
-  array[1..-1] + [array[0]]
-end
+DIGITS = {
+  'one' => '1',
+  'two' => '2',
+  'three' => '3',
+  'four' => '4',
+  'five' => '5',
+  'six' => '6',
+  'seven' => '7',
+  'eight' => '8',
+  'nine' => '9'
+}
 
-def rotate_rightmost_digits(number, n)
-  all_digits = number.to_s.chars
-  all_digits[-n..-1] = rotate_array(all_digits[-n..-1])
-  all_digits.join.to_i
-end
-
-def max_rotation(number)
-  number_digits = number.to_s.size
-  number_digits.downto(2) do |n|
-    number = rotate_rightmost_digits(number, n)
+def word_to_digit(sentence)
+  words = sentence.split(' ')
+  words.each_with_index do |word, index|
+    check_word = word[0..-2]
+    if DIGITS.keys.include?(check_word)
+      words[index] = DIGITS[check_word] + word[-1]
+    end
   end
-  number
+  words.each_with_index do |word, index|
+    if DIGITS.keys.include?(word)
+      words[index] = DIGITS[word]
+    end
+  end
+  words.join(" ")
 end
 
-p max_rotation(735291) == 321579
-p max_rotation(3) == 3
-p max_rotation(35) == 53
-p max_rotation(105) == 15 # the leading zero gets dropped
-p max_rotation(8_703_529_146) == 7_321_609_845
+p word_to_digit('Please call me at five five five one two three four. Thanks.') == 'Please call me at 5 5 5 1 2 3 4. Thanks.'
+
+DIGIT_HASH = {
+  'zero' => '0', 'one' => '1', 'two' => '2', 'three' => '3', 'four' => '4',
+  'five' => '5', 'six' => '6', 'seven' => '7', 'eight' => '8', 'nine' => '9'
+}.freeze
+
+def word_to_digit2(words)
+  DIGIT_HASH.keys.each do |word|
+    words.gsub!(/\b#{word}\b/, DIGIT_HASH[word])
+  end
+  words
+end
