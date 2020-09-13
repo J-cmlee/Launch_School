@@ -1,28 +1,30 @@
-# frozen_string_literal: true
+def merge(array1, array2)
+  index2 = 0
+  result = []
 
-def bubble_sort!(array)
-  swapped = false
-  loop do
-    0.upto(array.length - 2) do |i|
-      if array[i] > array[i + 1]
-        array[i], array[i + 1] = array[i + 1], array[i]
-        swapped = true
-      end
+  array1.each do |value|
+    while index2 < array2.size && array2[index2] <= value
+      result << array2[index2]
+      index2 += 1
     end
-    break if swapped == false
-
-    swapped = false
+    result << value
   end
+
+  result.concat(array2[index2..-1])
 end
 
-array = [5, 3]
-bubble_sort!(array)
-p array == [3, 5]
+def merge_sort(array)
+  return array if array.size == 1
 
-array = [6, 2, 7, 1, 4]
-bubble_sort!(array)
-p array == [1, 2, 4, 6, 7]
+  sub_array_1 = array[0...array.size / 2]
+  sub_array_2 = array[array.size / 2...array.size]
 
-array = %w[Sue Pete Alice Tyler Rachel Kim Bonnie]
-bubble_sort!(array)
-p array == %w[Alice Bonnie Kim Pete Rachel Sue Tyler]
+  sub_array_1 = merge_sort(sub_array_1)
+  sub_array_2 = merge_sort(sub_array_2)
+
+  merge(sub_array_1, sub_array_2)
+end
+
+p merge_sort([9, 5, 7, 1]) == [1, 5, 7, 9]
+p merge_sort([5, 3]) == [3, 5]
+p merge_sort([6, 2, 7, 1, 4]) == [1, 2, 4, 6, 7]
