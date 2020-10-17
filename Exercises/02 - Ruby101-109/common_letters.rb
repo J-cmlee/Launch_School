@@ -3,7 +3,7 @@ def common_chars(word_array)
   first_word.chars.select do |char|
     word_array.all? do |word|
       if word.include?(char)
-        word = word.slice!(word.index(char))
+        word.slice!(word.index(char))
         true
       end
     end
